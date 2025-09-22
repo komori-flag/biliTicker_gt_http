@@ -53,7 +53,7 @@ pub(crate) trait Api {
             .to_string();
         let callback = format!("geetest_{}", timestamp);
 
-        let url = "http://api.geetest.com/get.php";
+        let url = "https://api.geetest.com/get.php";
         let mut params = HashMap::from([
             ("gt", gt),
             ("challenge", challenge),
@@ -104,7 +104,7 @@ pub(crate) trait Api {
             .to_string();
         let callback = format!("geetest_{}", timestamp);
 
-        let url = "http://api.geetest.com/ajax.php";
+        let url = "https://api.geetest.com/ajax.php";
         let mut params = HashMap::from([
             ("gt", gt),
             ("challenge", challenge),
