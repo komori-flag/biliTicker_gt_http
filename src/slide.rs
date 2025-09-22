@@ -49,7 +49,7 @@ impl Slide {
         let key = self.calculate_key(args)?;
         let w = self.generate_w(&key, gt, &challenge, &c, &s)?;
         let (msg, validate) = self.verify(gt, &challenge, Some(&w))?;
-        Ok((msg, validate))
+        Ok((challenge, validate))
     }
     // --- 新增函数结束 ---
 }
