@@ -11,8 +11,9 @@ use reqwest::blocking::Client;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::thread::sleep;
 // 修改：引入 SystemTime 和 UNIX_EPOCH 用于生成时间戳
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 #[derive(Clone)]
 pub struct Slide {
@@ -36,20 +37,35 @@ impl Slide {
 
     // --- 新增函数 ---
     pub fn simple_match(&mut self, gt: &str, challenge: &str) -> Result<(String, String)> {
-        let (c, s) = self.get_c_s(gt, challenge, None)?;
+        // let (c, s) = self.get_c_s(gt, challenge, None)?;
 
-        let verify_type = self.get_type(gt, challenge, None)?;
-        if verify_type != VerifyType::Slide {
-            return Err(other_without_source("验证码类型错误"));
-        }
+        // let verify_type = self.get_type(gt, challenge, None)?;
+        // if verify_type != VerifyType::Slide {
+        //     return Err(other_without_source("验证码类型错误"));
+        // }
 
-        let (_c, _s, args) = self.get_new_c_s_args(gt, challenge)?;
-        // 注意滑块验证码这里要刷新challenge
+        // let (_c, _s, args) = self.get_new_c_s_args(gt, challenge)?;
+        // // 注意滑块验证码这里要刷新challenge
+        // let challenge = args.0.clone();
+        // let key = self.calculate_key(args)?;
+        // let w = self.generate_w(&key, gt, &challenge, &c, &s)?;
+        // let (msg, validate) = self.verify(gt, &challenge, Some(&w))?;
+        // Ok((challenge, validate))
+        self.get_c_s(gt, challenge, None)?;
+        self.get_type(gt, challenge, None)?;
+        let (c, s, args) = self.get_new_c_s_args(gt, challenge)?;
         let challenge = args.0.clone();
+        let start = Instant::now();
         let key = self.calculate_key(args)?;
-        let w = self.generate_w(&key, gt, &challenge, &c, &s)?;
-        let (msg, validate) = self.verify(gt, &challenge, Some(&w))?;
-        Ok((challenge, validate))
+        let w = self.generate_w(key.as_str(), gt, &challenge, c.as_ref(), s.as_str())?;
+
+        let elapsed = start.elapsed();
+        if elapsed < Duration::from_secs(2) {
+            let sleep_duration = Duration::from_secs(2) - elapsed;
+            sleep(sleep_duration);
+        }
+        let (_, validate) = self.verify(gt, &challenge, Some(w.as_str()))?;
+        Ok((challenge,validate))
     }
     // --- 新增函数结束 ---
 }
