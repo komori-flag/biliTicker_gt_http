@@ -404,6 +404,15 @@ async fn slide_test(State(state): State<AppState>, Json(req): Json<TestRequest>)
     )
 }
 
+// --- 新增处理器 ---
+async fn slide_simple_match(State(state): State<AppState>, Json(req): Json<SimpleMatchRequest>) -> Response {
+    handle_blocking_call!(
+        get_slide_instance(&state, req.session_id, req.proxy, req.user_agent),
+        move |instance: &mut Slide| instance.simple_match(&req.gt, &req.challenge).map(|(f, s)| TupleResponse2 { first: f, second: s })
+    )
+}
+// --- 新增处理器结束 ---
+
 async fn health_check() -> &'static str {
     "OK"
 }
@@ -436,6 +445,8 @@ async fn main() {
         .route("/slide/verify", post(slide_verify))
         .route("/slide/generate_w", post(slide_generate_w))
         .route("/slide/test", post(slide_test))
+        .route("/slide/simple_match", post(slide_simple_match))
+
         .layer(
             ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())

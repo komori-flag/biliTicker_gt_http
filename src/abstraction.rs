@@ -9,7 +9,7 @@ use std::collections::HashMap;
 // 修改：引入 SystemTime 和 UNIX_EPOCH 用于生成时间戳
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub(crate) enum VerifyType {
     Slide,
     Click,

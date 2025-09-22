@@ -33,6 +33,25 @@ impl Slide {
     pub fn update_client(&mut self, new_client: Arc<Client>) {
         self.client = new_client;
     }
+
+    // --- 新增函数 ---
+    pub fn simple_match(&mut self, gt: &str, challenge: &str) -> Result<(String, String)> {
+        let (c, s) = self.get_c_s(gt, challenge, None)?;
+
+        let verify_type = self.get_type(gt, challenge, None)?;
+        if verify_type != VerifyType::Slide {
+            return Err(other_without_source("验证码类型错误"));
+        }
+
+        let (_c, _s, args) = self.get_new_c_s_args(gt, challenge)?;
+        // 注意滑块验证码这里要刷新challenge
+        let challenge = args.0.clone();
+        let key = self.calculate_key(args)?;
+        let w = self.generate_w(&key, gt, &challenge, &c, &s)?;
+        let (msg, validate) = self.verify(gt, &challenge, Some(&w))?;
+        Ok((msg, validate))
+    }
+    // --- 新增函数结束 ---
 }
 
 impl Api for Slide {
